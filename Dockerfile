@@ -4,7 +4,7 @@ FROM alpine:3.21.2
 ARG BUILD_DATE="2025-02-26"
 ARG VERSION="1.0.0"
 ARG VCS_URL="https://github.com/stefanmcds-mnt/iam-proxy.git"
-ARG VCS_REF
+ARG VCS_REF="1.0.0"
 ARG AUTHORS="STEFAN MCDS S.a.s."
 ARG VENDOR="STEFAN MCDS S.a.s."
 
