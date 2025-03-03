@@ -1,5 +1,5 @@
+name: "iam-proxy-italia"
 services:
-
   satosa-mongo:
     profiles:
       - demo
@@ -15,7 +15,7 @@ services:
     volumes:
       - ./mongo/db:/data/db
       - ./mongo/init-mongo.sh:/docker-entrypoint-initdb.d/init-mongo.sh
-      - mongodata:/data/db # to be used for external volumes
+      # - mongodata:/data/db # to be used for external volumes
     ports:
       - '27017-27019:27017-27019'
     networks:
@@ -45,9 +45,9 @@ services:
     profiles:
       - demo
       - dev
-    build:
+    build: 
         context: ../
-        args:
+        args: 
             - NODE_ENV=local
         dockerfile: example_sp/django.Dockerfile
     container_name: django_sp
@@ -63,14 +63,14 @@ services:
   iam-proxy-italia:
     image: ghcr.io/italia/iam-proxy-italia:latest
     # image: iam-proxy-italia:latest
-    # build:
-        # context: ../
-        # args:
-            # - NODE_ENV=local
+    # build: 
+        # context: ../      
+        # args: 
+            # - NODE_ENV=local        
         # dockerfile: Dockerfile
     container_name: iam-proxy-italia
     # depends_on:
-    #  - satosa-mongo
+    # - satosa-mongo
     stdin_open: ${SATOSA_DEBUG:-false}   # enables PDB when attach to the compose
     tty: ${SATOSA_DEBUG:-false}   # enables PDB when attach to the compose
     environment:
@@ -86,7 +86,7 @@ services:
       - SATOSA_BASE_STATIC=${SATOSA_BASE}/static
       - SATOSA_DISCO_SRV=${SATOSA_BASE_STATIC}/disco.html
       - SATOSA_UNKNOW_ERROR_REDIRECT_PAGE=${SATOSA_BASE_STATIC}/error_page.html
-
+      
       - MONGODB_USERNAME=${MONGO_DBUSER:-satosa}
       - MONGODB_PASSWORD=${MONGO_DBPASSWORD:-thatpassword}
       - SATOSA_ENCRYPTION_KEY=${SATOSA_ENCRYPTION_KEY:-CHANGE_ME!}
@@ -123,8 +123,8 @@ services:
       - "10000:10000"
     volumes:
       - ./satosa-project:/satosa_proxy:rwx
-      - ./eudi-wallet-it-python/pyeudiw:/.venv/lib/python3.12/site-packages/pyeudiw:rwx
-      #- iam-proxy-italia-data:/satosa_proxy # to be used for external volumes
+      # - ./eudi-wallet-it-python/pyeudiw:/.venv/lib/python3.12/site-packages/pyeudiw:rwx
+      # - iam-proxy-italia-data:/satosa_proxy # to be used for external volumes
     working_dir: /satosa_proxy
     entrypoint: "sh entrypoint.sh"
     networks:
@@ -147,7 +147,7 @@ services:
       - ./nginx/conf.d:/etc/nginx/conf.d:ro
       - ./nginx/html:/usr/share/nginx/html:ro
       - ./nginx/certs:/etc/nginx/certs:ro
-      - static:/usr/share/nginx/html # to be used for external volumes
+      # - static:/usr/share/nginx/html # to be used for external volumes
     networks:
       - iam-proxy-italia
     environment:
@@ -168,17 +168,17 @@ networks:
   iam-proxy-italia:
     name: iam-proxy-italia
 
-## External volumes
-volumes:
-   mongodata:
-     name: iam-proxy-italia_mongodata
-     external: true
-   nginx_certs:
-     name: iam-proxy-italia_nginx_certs
-     external: true
-   iam-proxy-italia:
-     name: iam-proxy-italia-data
-     external: true
-   static:
-     name: iam-proxy-italia-static
-     external: true
+## External volumes 
+# volumes:
+#   mongodata:
+#     name: iam-proxy-italia_mongodata
+#     external: true
+#   nginx_certs:
+#     name: iam-proxy-italia_nginx_certs
+#     external: true
+#   iam-proxy-italia:
+#     name: iam-proxy-italia-data
+#     external: true
+#   static:
+#     name: iam-proxy-italia-static
+#     external: true

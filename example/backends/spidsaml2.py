@@ -117,8 +117,9 @@ class SpidSAMLBackend(SAMLBackend):
             spid_contact = saml2.md.ContactPerson()
             spid_contact.contact_type = contact["contact_type"]
             contact_kwargs = {
-                "email_address": [contact["email_address"]],
-                "telephone_number": [contact["telephone_number"]],
+                key: contact[key]
+                for key in ["email_address", "telephone_number", "company"]
+                if key in contact
             }
             spid_extensions = saml2.ExtensionElement(
                 "Extensions", namespace="urn:oasis:names:tc:SAML:2.0:metadata"
@@ -135,11 +136,15 @@ class SpidSAMLBackend(SAMLBackend):
                     )
                     # Avviso SPID n. 19 v.4 per enti AGGREGATORI il tag ContactPerson
                     # deve avere l’attributo spid:entityType valorizzato come spid:aggregator
-                    if k == "PublicServicesFullOperator":
+                    if k == "PublicServicesFullAggregator":
                         spid_contact.extension_attributes = {
                             "spid:entityType": "spid:aggregator"
                         }
-
+                    if k == "Aggregated":
+                        spid_contact.extension_attributes = {
+                            "spid:entityType": "spid:aggregated"
+                        }
+                        continue
                     spid_extensions.children.append(ext)
 
                 spid_contact.extensions = spid_extensions
@@ -376,11 +381,11 @@ class SpidSAMLBackend(SAMLBackend):
             # spid-testenv2 preleva l'attribute consumer service dalla authnRequest
             # (anche se questo sta già nei metadati...)
             # Imposta il consuming_service_index in base al default di ficep per le richieste ficep, oppure a '0' per le richieste spid
-            if entity_id == self.config["sp_config"]["ficep_entity_id"]:
-                authn_req.attribute_consuming_service_index = str(self.config["sp_config"]["ficep_default_acs_index"])
-            else:
-                authn_req.attribute_consuming_service_index = "0"
-
+            authn_req.attribute_consuming_service_index = str(
+                 self.config["sp_config"].get("acs_index") or
+                 self.config["sp_config"].get("ficep_default_acs_index") or
+                 "0"
+            )
             issuer = saml2.saml.Issuer()
             issuer.name_qualifier = client.config.entityid
             issuer.text = client.config.entityid
